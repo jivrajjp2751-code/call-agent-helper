@@ -4,6 +4,7 @@ import HowItWorksSection from "@/components/HowItWorksSection";
 import PropertiesSection from "@/components/PropertiesSection";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
+import VoiceAgent from "@/components/VoiceAgent";
 
 const Index = () => {
   return (
@@ -14,6 +15,7 @@ const Index = () => {
       <PropertiesSection />
       <ContactSection />
       <Footer />
+      <VoiceAgent />
     </main>
   );
 };
