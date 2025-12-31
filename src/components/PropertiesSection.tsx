@@ -13,73 +13,73 @@ import property6 from "@/assets/property-6.jpg";
 const properties = [
   {
     id: 1,
-    title: "Modern Villa with Pool",
-    location: "Beverly Hills, CA",
-    price: "$2,850,000",
-    beds: 5,
+    title: "Sea-View Luxury Apartment",
+    location: "Bandra West, Mumbai",
+    price: "₹8.5 Cr",
+    beds: 4,
     baths: 4,
-    sqft: "4,200",
+    sqft: "2,800",
     image: property1,
     featured: true,
   },
   {
     id: 2,
-    title: "Luxury Penthouse",
-    location: "Manhattan, NY",
-    price: "$4,500,000",
-    beds: 3,
-    baths: 3,
-    sqft: "3,100",
-    image: property2,
-    featured: false,
-  },
-  {
-    id: 3,
-    title: "Beachfront Mansion",
-    location: "Miami Beach, FL",
-    price: "$6,200,000",
-    beds: 6,
+    title: "Premium Penthouse",
+    location: "Worli, Mumbai",
+    price: "₹12 Cr",
+    beds: 5,
     baths: 5,
-    sqft: "5,800",
-    image: property3,
+    sqft: "4,500",
+    image: property2,
     featured: true,
   },
   {
+    id: 3,
+    title: "Garden Villa",
+    location: "Koregaon Park, Pune",
+    price: "₹6.5 Cr",
+    beds: 5,
+    baths: 4,
+    sqft: "5,200",
+    image: property3,
+    featured: false,
+  },
+  {
     id: 4,
-    title: "Contemporary Townhouse",
-    location: "Scottsdale, AZ",
-    price: "$1,450,000",
-    beds: 4,
+    title: "Modern 3BHK Flat",
+    location: "Hinjewadi, Pune",
+    price: "₹1.8 Cr",
+    beds: 3,
     baths: 3,
-    sqft: "2,800",
+    sqft: "1,850",
     image: property4,
     featured: false,
   },
   {
     id: 5,
-    title: "Industrial Loft",
-    location: "Brooklyn, NY",
-    price: "$1,850,000",
-    beds: 2,
-    baths: 2,
-    sqft: "2,100",
+    title: "Heritage Bungalow",
+    location: "Panchgani, Maharashtra",
+    price: "₹4.2 Cr",
+    beds: 4,
+    baths: 3,
+    sqft: "3,500",
     image: property5,
-    featured: false,
+    featured: true,
   },
   {
     id: 6,
-    title: "Mountain Retreat",
-    location: "Aspen, CO",
-    price: "$3,900,000",
-    beds: 5,
-    baths: 4,
-    sqft: "4,500",
+    title: "Beachfront Apartment",
+    location: "Alibaug, Maharashtra",
+    price: "₹3.5 Cr",
+    beds: 3,
+    baths: 2,
+    sqft: "2,200",
     image: property6,
-    featured: true,
+    featured: false,
   },
 ];
 
-const areas = ["All Areas", "Beverly Hills", "Manhattan", "Miami Beach", "Scottsdale", "Brooklyn", "Aspen"];
+const areas = ["All Areas", "Mumbai", "Pune", "Nashik", "Nagpur", "Lonavala", "Alibaug"];
 
 const PropertyCard = ({ property, index }: { property: typeof properties[0]; index: number }) => {
   const [isLiked, setIsLiked] = useState(false);
@@ -170,7 +170,11 @@ const PropertiesSection = () => {
 
   const filteredProperties = selectedArea === "All Areas"
     ? properties
-    : properties.filter((p) => p.location.includes(selectedArea));
+    : properties.filter((p) => {
+        if (selectedArea === "Mumbai") return p.location.includes("Mumbai") || p.location.includes("Bandra") || p.location.includes("Worli");
+        if (selectedArea === "Pune") return p.location.includes("Pune") || p.location.includes("Koregaon") || p.location.includes("Hinjewadi");
+        return p.location.toLowerCase().includes(selectedArea.toLowerCase());
+      });
 
   return (
     <section id="properties" className="py-24 bg-secondary/20">

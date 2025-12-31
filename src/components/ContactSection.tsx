@@ -63,23 +63,27 @@ const ContactSection = () => {
   };
 
   const areas = [
-    "Beverly Hills, CA",
-    "Manhattan, NY",
-    "Miami Beach, FL",
-    "Scottsdale, AZ",
-    "Brooklyn, NY",
-    "Aspen, CO",
-    "San Francisco, CA",
-    "Los Angeles, CA",
+    "Mumbai - Bandra",
+    "Mumbai - Worli",
+    "Mumbai - Andheri",
+    "Mumbai - Powai",
+    "Pune - Koregaon Park",
+    "Pune - Hinjewadi",
+    "Pune - Kothrud",
+    "Nashik",
+    "Nagpur",
+    "Lonavala",
+    "Alibaug",
+    "Panchgani",
   ];
 
   const budgetRanges = [
-    "Under $500,000",
-    "$500,000 - $1,000,000",
-    "$1,000,000 - $2,000,000",
-    "$2,000,000 - $5,000,000",
-    "$5,000,000 - $10,000,000",
-    "Over $10,000,000",
+    "Under ₹50 Lakh",
+    "₹50 Lakh - ₹1 Cr",
+    "₹1 Cr - ₹3 Cr",
+    "₹3 Cr - ₹5 Cr",
+    "₹5 Cr - ₹10 Cr",
+    "Above ₹10 Cr",
   ];
 
   const timeSlots = [
@@ -133,7 +137,7 @@ const ContactSection = () => {
                   </div>
                   <div>
                     <p className="font-medium mb-1">Phone</p>
-                    <p className="text-muted-foreground">+1 (555) 123-4567</p>
+                    <p className="text-muted-foreground">+91 98765 43210</p>
                   </div>
                 </div>
 
@@ -143,7 +147,7 @@ const ContactSection = () => {
                   </div>
                   <div>
                     <p className="font-medium mb-1">Email</p>
-                    <p className="text-muted-foreground">hello@aiestateagent.com</p>
+                    <p className="text-muted-foreground">hello@aiestateagent.in</p>
                   </div>
                 </div>
 
@@ -153,7 +157,7 @@ const ContactSection = () => {
                   </div>
                   <div>
                     <p className="font-medium mb-1">Office</p>
-                    <p className="text-muted-foreground">123 Luxury Ave, Suite 100<br />Beverly Hills, CA 90210</p>
+                    <p className="text-muted-foreground">Tower A, Bandra Kurla Complex<br />Mumbai, Maharashtra 400051</p>
                   </div>
                 </div>
 
@@ -190,7 +194,7 @@ const ContactSection = () => {
                   <Input
                     id="name"
                     name="name"
-                    placeholder="John Doe"
+                    placeholder="Rahul Sharma"
                     value={formData.name}
                     onChange={handleInputChange}
                     required
@@ -206,7 +210,7 @@ const ContactSection = () => {
                     id="email"
                     name="email"
                     type="email"
-                    placeholder="john@example.com"
+                    placeholder="rahul@example.com"
                     value={formData.email}
                     onChange={handleInputChange}
                     required
@@ -224,7 +228,7 @@ const ContactSection = () => {
                     id="phone"
                     name="phone"
                     type="tel"
-                    placeholder="+1 (555) 000-0000"
+                    placeholder="+91 98765 43210"
                     value={formData.phone}
                     onChange={handleInputChange}
                     required

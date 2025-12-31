@@ -109,15 +109,15 @@ const Footer = () => {
             <ul className="space-y-4">
               <li className="flex items-center gap-3 text-muted-foreground text-sm">
                 <Phone className="w-4 h-4 text-primary shrink-0" />
-                +1 (555) 123-4567
+                +91 98765 43210
               </li>
               <li className="flex items-center gap-3 text-muted-foreground text-sm">
                 <Mail className="w-4 h-4 text-primary shrink-0" />
-                hello@aiestateagent.com
+                hello@aiestateagent.in
               </li>
               <li className="flex items-start gap-3 text-muted-foreground text-sm">
                 <MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                <span>123 Luxury Ave, Suite 100<br />Beverly Hills, CA 90210</span>
+                <span>Tower A, Bandra Kurla Complex<br />Mumbai, Maharashtra 400051</span>
               </li>
             </ul>
           </motion.div>
