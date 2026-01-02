@@ -14,6 +14,31 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Phone, Mail, MapPin, Calendar, DollarSign, Clock, User, Send } from "lucide-react";
+import { z } from "zod";
+
+// Validation schema for customer inquiries
+const inquirySchema = z.object({
+  name: z.string()
+    .min(2, "Name must be at least 2 characters")
+    .max(100, "Name must be less than 100 characters")
+    .trim(),
+  email: z.string()
+    .email("Please enter a valid email address")
+    .max(255, "Email must be less than 255 characters")
+    .trim(),
+  phone: z.string()
+    .min(10, "Phone number must be at least 10 characters")
+    .max(20, "Phone number must be less than 20 characters")
+    .trim(),
+  preferredArea: z.string().max(100).optional().or(z.literal("")),
+  budget: z.string().max(50).optional().or(z.literal("")),
+  preferredTime: z.string().max(50).optional().or(z.literal("")),
+  appointmentDate: z.string().optional().or(z.literal("")),
+  message: z.string()
+    .max(2000, "Message must be less than 2000 characters")
+    .optional()
+    .or(z.literal("")),
+});
 
 const ContactSection = () => {
   const { toast } = useToast();
@@ -43,19 +68,35 @@ const ContactSection = () => {
     setIsSubmitting(true);
 
     try {
+      // Validate form data using Zod schema
+      const validationResult = inquirySchema.safeParse(formData);
+      
+      if (!validationResult.success) {
+        const firstError = validationResult.error.errors[0];
+        toast({
+          title: "Validation Error",
+          description: firstError.message,
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      const validatedData = validationResult.data;
+
       const { error } = await supabase.from("customer_inquiries").insert({
-        name: formData.name.trim(),
-        email: formData.email.trim(),
-        phone: formData.phone.trim(),
-        preferred_area: formData.preferredArea || null,
-        budget: formData.budget || null,
-        preferred_time: formData.preferredTime || null,
-        appointment_date: formData.appointmentDate || null,
-        message: formData.message.trim() || null,
+        name: validatedData.name,
+        email: validatedData.email,
+        phone: validatedData.phone,
+        preferred_area: validatedData.preferredArea || null,
+        budget: validatedData.budget || null,
+        preferred_time: validatedData.preferredTime || null,
+        appointment_date: validatedData.appointmentDate || null,
+        message: validatedData.message?.trim() || null,
       });
 
       if (error) {
-        console.error("Error submitting inquiry:", error);
+        // Don't log full error to console - may contain sensitive info
         toast({
           title: "Submission Failed",
           description: "Please try again later.",
@@ -80,7 +121,7 @@ const ContactSection = () => {
         message: "",
       });
     } catch (err) {
-      console.error("Unexpected error:", err);
+      // Don't log unexpected errors to console - may contain sensitive info
       toast({
         title: "Something went wrong",
         description: "Please try again later.",
