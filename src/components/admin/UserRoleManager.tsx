@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -17,7 +18,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { RefreshCw, Users, Shield, UserCog, Eye, Mail } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { RefreshCw, Users, Shield, UserCog, Eye, Mail, UserPlus } from "lucide-react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 
@@ -38,6 +48,10 @@ const UserRoleManager = ({ currentUserId }: UserRoleManagerProps) => {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [isInviteOpen, setIsInviteOpen] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState<"admin" | "editor" | "viewer">("editor");
+  const [isInviting, setIsInviting] = useState(false);
 
   const fetchProfiles = async () => {
     setIsLoading(true);
@@ -105,6 +119,64 @@ const UserRoleManager = ({ currentUserId }: UserRoleManagerProps) => {
     }
   };
 
+  const handleInviteUser = async () => {
+    if (!inviteEmail.trim()) {
+      toast({
+        title: "Email required",
+        description: "Please enter an email address",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsInviting(true);
+    try {
+      // Check if user already exists
+      const existingProfile = profiles.find(
+        (p) => p.email?.toLowerCase() === inviteEmail.toLowerCase()
+      );
+
+      if (existingProfile) {
+        // Update existing user's role
+        const { error } = await supabase
+          .from("profiles")
+          .update({ role: inviteRole })
+          .eq("id", existingProfile.id);
+
+        if (error) throw error;
+
+        setProfiles((prev) =>
+          prev.map((p) =>
+            p.id === existingProfile.id ? { ...p, role: inviteRole } : p
+          )
+        );
+
+        toast({
+          title: "Role updated",
+          description: `${inviteEmail} has been given ${inviteRole} access`,
+        });
+      } else {
+        toast({
+          title: "User not found",
+          description: "This user needs to sign up first. Once they create an account, you can assign them a role.",
+          variant: "destructive",
+        });
+      }
+
+      setIsInviteOpen(false);
+      setInviteEmail("");
+      setInviteRole("editor");
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsInviting(false);
+    }
+  };
+
   const getRoleIcon = (role: string) => {
     switch (role) {
       case "admin":
@@ -129,15 +201,80 @@ const UserRoleManager = ({ currentUserId }: UserRoleManagerProps) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <h2 className="text-xl font-semibold flex items-center gap-2">
           <Users className="w-5 h-5" />
           User Role Management
         </h2>
-        <Button variant="outline" onClick={fetchProfiles} disabled={isLoading}>
-          <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
-          Refresh
-        </Button>
+        <div className="flex items-center gap-2">
+          <Dialog open={isInviteOpen} onOpenChange={setIsInviteOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <UserPlus className="w-4 h-4 mr-2" />
+                Grant Access by Email
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Grant Admin Dashboard Access</DialogTitle>
+                <DialogDescription>
+                  Enter the email of a registered user to grant them access to the admin dashboard.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Email Address</label>
+                  <Input
+                    type="email"
+                    placeholder="user@example.com"
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Role to Assign</label>
+                  <Select value={inviteRole} onValueChange={(v) => setInviteRole(v as any)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="admin">
+                        <div className="flex items-center gap-2">
+                          <Shield className="w-4 h-4 text-destructive" />
+                          Admin - Full access
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="editor">
+                        <div className="flex items-center gap-2">
+                          <UserCog className="w-4 h-4 text-primary" />
+                          Editor - Manage content
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="viewer">
+                        <div className="flex items-center gap-2">
+                          <Eye className="w-4 h-4 text-muted-foreground" />
+                          Viewer - Read only
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsInviteOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleInviteUser} disabled={isInviting}>
+                  {isInviting ? "Granting..." : "Grant Access"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          <Button variant="outline" onClick={fetchProfiles} disabled={isLoading}>
+            <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
+            Refresh
+          </Button>
+        </div>
       </div>
 
       <motion.div
