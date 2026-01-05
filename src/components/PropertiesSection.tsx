@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
-import { MapPin, Bed, Bath, Square, Heart } from "lucide-react";
+import { MapPin, Bed, Bath, Square, Heart, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import PropertyDetailModal from "./PropertyDetailModal";
 
 interface Property {
   id: string;
@@ -18,12 +19,16 @@ interface Property {
 
 const areas = ["All Areas", "Mumbai", "Pune", "Nashik", "Nagpur", "Lonavala", "Alibaug"];
 
-const PropertyCard = ({ property, index }: { property: Property; index: number }) => {
+const PropertyCard = ({ 
+  property, 
+  index, 
+  onViewDetails 
+}: { 
+  property: Property; 
+  index: number;
+  onViewDetails: (property: Property) => void;
+}) => {
   const [isLiked, setIsLiked] = useState(false);
-
-  const scrollToContact = () => {
-    document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
-  };
 
   return (
     <motion.div
@@ -100,9 +105,16 @@ const PropertyCard = ({ property, index }: { property: Property; index: number }
           </div>
         </div>
 
-        <Button variant="outline" className="w-full" onClick={scrollToContact}>
-          Request Info
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            className="flex-1" 
+            onClick={() => onViewDetails(property)}
+          >
+            <Eye className="w-4 h-4 mr-2" />
+            View Details
+          </Button>
+        </div>
       </div>
     </motion.div>
   );
@@ -112,6 +124,8 @@ const PropertiesSection = () => {
   const [selectedArea, setSelectedArea] = useState("All Areas");
   const [properties, setProperties] = useState<Property[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchProperties();
@@ -133,6 +147,11 @@ const PropertiesSection = () => {
     }
   };
 
+  const handleViewDetails = (property: Property) => {
+    setSelectedProperty(property);
+    setIsModalOpen(true);
+  };
+
   const filteredProperties = selectedArea === "All Areas"
     ? properties
     : properties.filter((p) => {
@@ -142,56 +161,69 @@ const PropertiesSection = () => {
       });
 
   return (
-    <section id="properties" className="py-24 bg-secondary/20">
-      <div className="container mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-12"
-        >
-          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-            Featured <span className="gradient-text">Properties</span>
-          </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-8">
-            Explore our handpicked selection of premium properties in your preferred area
-          </p>
+    <>
+      <section id="properties" className="py-24 bg-secondary/20">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
+              Featured <span className="gradient-text">Properties</span>
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-8">
+              Explore our handpicked selection of premium properties in your preferred area
+            </p>
 
-          {/* Area Filter */}
-          <div className="flex flex-wrap justify-center gap-2">
-            {areas.map((area) => (
-              <button
-                key={area}
-                onClick={() => setSelectedArea(area)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                  selectedArea === area
-                    ? "bg-primary text-primary-foreground shadow-lg"
-                    : "bg-secondary hover:bg-secondary/80 text-foreground"
-                }`}
-              >
-                {area}
-              </button>
-            ))}
-          </div>
-        </motion.div>
+            {/* Area Filter */}
+            <div className="flex flex-wrap justify-center gap-2">
+              {areas.map((area) => (
+                <button
+                  key={area}
+                  onClick={() => setSelectedArea(area)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                    selectedArea === area
+                      ? "bg-primary text-primary-foreground shadow-lg"
+                      : "bg-secondary hover:bg-secondary/80 text-foreground"
+                  }`}
+                >
+                  {area}
+                </button>
+              ))}
+            </div>
+          </motion.div>
 
-        {isLoading ? (
-          <div className="flex justify-center py-12">
-            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-          </div>
-        ) : filteredProperties.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground">
-            <p>No properties found in this area</p>
-          </div>
-        ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {filteredProperties.map((property, index) => (
-              <PropertyCard key={property.id} property={property} index={index} />
-            ))}
-          </div>
-        )}
-      </div>
-    </section>
+          {isLoading ? (
+            <div className="flex justify-center py-12">
+              <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : filteredProperties.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <p>No properties found in this area</p>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+              {filteredProperties.map((property, index) => (
+                <PropertyCard 
+                  key={property.id} 
+                  property={property} 
+                  index={index}
+                  onViewDetails={handleViewDetails}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      <PropertyDetailModal
+        property={selectedProperty}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
+    </>
   );
 };
 
