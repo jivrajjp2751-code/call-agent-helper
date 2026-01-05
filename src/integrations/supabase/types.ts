@@ -85,6 +85,7 @@ export type Database = {
           baths: number
           beds: number
           created_at: string
+          description: string | null
           featured: boolean
           id: string
           location: string
@@ -93,11 +94,13 @@ export type Database = {
           sqft: string
           title: string
           updated_at: string
+          virtual_tour_url: string | null
         }
         Insert: {
           baths?: number
           beds?: number
           created_at?: string
+          description?: string | null
           featured?: boolean
           id?: string
           location: string
@@ -106,11 +109,13 @@ export type Database = {
           sqft: string
           title: string
           updated_at?: string
+          virtual_tour_url?: string | null
         }
         Update: {
           baths?: number
           beds?: number
           created_at?: string
+          description?: string | null
           featured?: boolean
           id?: string
           location?: string
@@ -119,6 +124,7 @@ export type Database = {
           sqft?: string
           title?: string
           updated_at?: string
+          virtual_tour_url?: string | null
         }
         Relationships: []
       }
