@@ -26,6 +26,8 @@ import PropertyPhotoManager from "@/components/admin/PropertyPhotoManager";
 import PropertyManager from "@/components/admin/PropertyManager";
 import UserRoleManager from "@/components/admin/UserRoleManager";
 import AuditLogViewer from "@/components/admin/AuditLogViewer";
+import NotificationBell from "@/components/admin/NotificationBell";
+import NotificationPreferences from "@/components/admin/NotificationPreferences";
 import {
   Building2,
   LogOut,
@@ -43,6 +45,7 @@ import {
   Home,
   UserCog,
   History,
+  Settings,
 } from "lucide-react";
 import { format } from "date-fns";
 import { User, Session } from "@supabase/supabase-js";
@@ -315,17 +318,20 @@ const Admin = () => {
               </p>
             </div>
           </div>
-          <Button variant="outline" onClick={handleLogout}>
-            <LogOut className="w-4 h-4 mr-2" />
-            Logout
-          </Button>
+          <div className="flex items-center gap-2">
+            {role === "admin" && <NotificationBell />}
+            <Button variant="outline" onClick={handleLogout}>
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </Button>
+          </div>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8">
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full max-w-3xl grid-cols-5">
+          <TabsList className="grid w-full max-w-4xl grid-cols-6">
             <TabsTrigger value="inquiries" className="flex items-center gap-2">
               <Mail className="w-4 h-4" />
               Inquiries
@@ -348,6 +354,12 @@ const Admin = () => {
               <TabsTrigger value="audit" className="flex items-center gap-2">
                 <History className="w-4 h-4" />
                 Audit Logs
+              </TabsTrigger>
+            )}
+            {role === "admin" && (
+              <TabsTrigger value="settings" className="flex items-center gap-2">
+                <Settings className="w-4 h-4" />
+                Settings
               </TabsTrigger>
             )}
           </TabsList>
@@ -588,6 +600,13 @@ const Admin = () => {
           {role === "admin" && (
             <TabsContent value="audit">
               <AuditLogViewer />
+            </TabsContent>
+          )}
+
+          {/* Settings Tab - Admin Only */}
+          {role === "admin" && (
+            <TabsContent value="settings">
+              <NotificationPreferences />
             </TabsContent>
           )}
         </Tabs>

@@ -50,6 +50,72 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_notification_preferences: {
+        Row: {
+          created_at: string
+          email_access_grants: boolean
+          email_access_removals: boolean
+          email_bulk_actions: boolean
+          email_role_changes: boolean
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email_access_grants?: boolean
+          email_access_removals?: boolean
+          email_bulk_actions?: boolean
+          email_role_changes?: boolean
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email_access_grants?: boolean
+          email_access_removals?: boolean
+          email_bulk_actions?: boolean
+          email_role_changes?: boolean
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      admin_notifications: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          target_email: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          target_email?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          target_email?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       customer_inquiries: {
         Row: {
           appointment_date: string | null
