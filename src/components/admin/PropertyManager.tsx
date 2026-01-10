@@ -31,7 +31,6 @@ import {
   Bed,
   Bath,
   Square,
-  Video,
   FileText,
 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -52,7 +51,6 @@ interface Property {
   sqft: string;
   featured: boolean;
   primary_image_url: string | null;
-  virtual_tour_url: string | null;
   description: string | null;
   created_at: string;
 }
@@ -71,7 +69,6 @@ const PropertyManager = () => {
     baths: 2,
     sqft: "",
     featured: false,
-    virtual_tour_url: "",
     description: "",
   });
 
@@ -109,7 +106,6 @@ const PropertyManager = () => {
       baths: 2,
       sqft: "",
       featured: false,
-      virtual_tour_url: "",
       description: "",
     });
     setEditingProperty(null);
@@ -126,7 +122,6 @@ const PropertyManager = () => {
         baths: property.baths,
         sqft: property.sqft,
         featured: property.featured,
-        virtual_tour_url: property.virtual_tour_url || "",
         description: property.description || "",
       });
     } else {
@@ -140,7 +135,6 @@ const PropertyManager = () => {
 
     const submitData = {
       ...formData,
-      virtual_tour_url: formData.virtual_tour_url || null,
       description: formData.description || null,
     };
 
@@ -284,18 +278,6 @@ const PropertyManager = () => {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="virtual_tour_url">Virtual Tour URL (Optional)</Label>
-                  <Input
-                    id="virtual_tour_url"
-                    value={formData.virtual_tour_url}
-                    onChange={(e) => setFormData({ ...formData, virtual_tour_url: e.target.value })}
-                    placeholder="https://youtube.com/watch?v=... or video URL"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Supports YouTube, Vimeo, or direct video URLs
-                  </p>
-                </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="description">Description (Optional)</Label>
@@ -412,17 +394,7 @@ const PropertyManager = () => {
                     <TableCell>
                       <TooltipProvider>
                         <div className="flex items-center gap-2">
-                          {property.virtual_tour_url && (
-                            <Tooltip>
-                              <TooltipTrigger>
-                                <div className="w-6 h-6 rounded bg-primary/10 flex items-center justify-center">
-                                  <Video className="w-3 h-3 text-primary" />
-                                </div>
-                              </TooltipTrigger>
-                              <TooltipContent>Virtual Tour Available</TooltipContent>
-                            </Tooltip>
-                          )}
-                          {property.description && (
+                          {property.description ? (
                             <Tooltip>
                               <TooltipTrigger>
                                 <div className="w-6 h-6 rounded bg-primary/10 flex items-center justify-center">
@@ -433,8 +405,7 @@ const PropertyManager = () => {
                                 <p className="max-w-xs">{property.description.slice(0, 100)}...</p>
                               </TooltipContent>
                             </Tooltip>
-                          )}
-                          {!property.virtual_tour_url && !property.description && (
+                          ) : (
                             <span className="text-muted-foreground text-xs">-</span>
                           )}
                         </div>

@@ -12,7 +12,6 @@ interface Property {
   sqft: string;
   featured: boolean;
   primary_image_url: string | null;
-  virtual_tour_url?: string | null;
   description?: string | null;
 }
 
@@ -247,25 +246,6 @@ const PropertyComparisonModal = ({
                       ))}
                     </tr>
 
-                    {/* Virtual Tour */}
-                    <tr className="border-t border-border">
-                      <td className="sticky left-0 bg-card p-4 font-medium">Virtual Tour</td>
-                      {properties.map((property) => (
-                        <td key={property.id} className="p-4">
-                          {property.virtual_tour_url ? (
-                            <div className="flex items-center gap-2 text-primary">
-                              <Check className="w-5 h-5" />
-                              <span>Available</span>
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                              <Minus className="w-5 h-5" />
-                              <span>Not Available</span>
-                            </div>
-                          )}
-                        </td>
-                      ))}
-                    </tr>
 
                     {/* Actions */}
                     <tr className="border-t border-border bg-secondary/20">

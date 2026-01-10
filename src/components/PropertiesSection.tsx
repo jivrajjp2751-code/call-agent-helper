@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { MapPin, Bed, Bath, Square, Heart, Eye, GitCompare, Video } from "lucide-react";
+import { MapPin, Bed, Bath, Square, Heart, Eye, GitCompare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState, useEffect, useMemo } from "react";
@@ -19,7 +19,6 @@ interface Property {
   sqft: string;
   featured: boolean;
   primary_image_url: string | null;
-  virtual_tour_url?: string | null;
   description?: string | null;
 }
 
@@ -84,13 +83,6 @@ const PropertyCard = ({
         {property.featured && (
           <div className="absolute top-4 right-14 px-3 py-1 rounded-full bg-primary text-primary-foreground text-xs font-semibold">
             Featured
-          </div>
-        )}
-
-        {/* Virtual Tour Badge */}
-        {property.virtual_tour_url && (
-          <div className="absolute top-14 right-4 w-10 h-10 rounded-full bg-primary/90 flex items-center justify-center">
-            <Video className="w-5 h-5 text-primary-foreground" />
           </div>
         )}
 

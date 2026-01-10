@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, MapPin, Bed, Bath, Square, Calendar, Phone, Heart, Share2, ChevronLeft, ChevronRight, Video } from "lucide-react";
+import { X, MapPin, Bed, Bath, Square, Calendar, Phone, Heart, Share2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import VirtualTourViewer from "./VirtualTourViewer";
 
 interface Property {
   id: string;
@@ -15,7 +14,6 @@ interface Property {
   sqft: string;
   featured: boolean;
   primary_image_url: string | null;
-  virtual_tour_url?: string | null;
   description?: string | null;
 }
 
@@ -37,7 +35,6 @@ const PropertyDetailModal = ({ property, isOpen, onClose }: PropertyDetailModalP
   const [images, setImages] = useState<PropertyImage[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
-  const [showVirtualTour, setShowVirtualTour] = useState(false);
 
   useEffect(() => {
     if (property && isOpen) {
@@ -206,17 +203,6 @@ const PropertyDetailModal = ({ property, isOpen, onClose }: PropertyDetailModalP
                       </div>
                     )}
 
-                    {/* Virtual Tour Button */}
-                    {property.virtual_tour_url && (
-                      <Button
-                        variant="outline"
-                        className="w-full gap-2"
-                        onClick={() => setShowVirtualTour(true)}
-                      >
-                        <Video className="w-5 h-5" />
-                        Take Virtual Tour
-                      </Button>
-                    )}
                   </div>
 
                   {/* Details */}
@@ -285,12 +271,6 @@ const PropertyDetailModal = ({ property, isOpen, onClose }: PropertyDetailModalP
                           <span className="w-1.5 h-1.5 rounded-full bg-primary" />
                           Garden/Balcony
                         </li>
-                        {property.virtual_tour_url && (
-                          <li className="flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                            Virtual Tour Available
-                          </li>
-                        )}
                       </ul>
                     </div>
 
@@ -312,14 +292,6 @@ const PropertyDetailModal = ({ property, isOpen, onClose }: PropertyDetailModalP
           </>
         )}
       </AnimatePresence>
-
-      {/* Virtual Tour Viewer */}
-      <VirtualTourViewer
-        tourUrl={property?.virtual_tour_url || null}
-        propertyTitle={property?.title || ""}
-        isOpen={showVirtualTour}
-        onClose={() => setShowVirtualTour(false)}
-      />
     </>
   );
 };
