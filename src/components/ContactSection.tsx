@@ -48,11 +48,13 @@ const ContactSection = () => {
     email: "",
     phone: "",
     preferredArea: "",
+    customArea: "",
     budget: "",
     preferredTime: "",
     appointmentDate: "",
     message: "",
   });
+  const [showCustomArea, setShowCustomArea] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -60,7 +62,17 @@ const ContactSection = () => {
   };
 
   const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === "preferredArea") {
+      if (value === "other") {
+        setShowCustomArea(true);
+        setFormData((prev) => ({ ...prev, preferredArea: "" }));
+      } else {
+        setShowCustomArea(false);
+        setFormData((prev) => ({ ...prev, preferredArea: value, customArea: "" }));
+      }
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -84,11 +96,16 @@ const ContactSection = () => {
 
       const validatedData = validationResult.data;
 
+      // Use custom area if provided, otherwise use selected area
+      const finalArea = showCustomArea && formData.customArea.trim() 
+        ? formData.customArea.trim() 
+        : validatedData.preferredArea;
+
       const { error } = await supabase.from("customer_inquiries").insert({
         name: validatedData.name,
         email: validatedData.email,
         phone: validatedData.phone,
-        preferred_area: validatedData.preferredArea || null,
+        preferred_area: finalArea || null,
         budget: validatedData.budget || null,
         preferred_time: validatedData.preferredTime || null,
         appointment_date: validatedData.appointmentDate || null,
@@ -115,11 +132,13 @@ const ContactSection = () => {
         email: "",
         phone: "",
         preferredArea: "",
+        customArea: "",
         budget: "",
         preferredTime: "",
         appointmentDate: "",
         message: "",
       });
+      setShowCustomArea(false);
     } catch (err) {
       // Don't log unexpected errors to console - may contain sensitive info
       toast({
@@ -310,21 +329,48 @@ const ContactSection = () => {
                     <MapPin className="w-4 h-4 text-primary" />
                     Preferred Area
                   </Label>
-                  <Select
-                    value={formData.preferredArea}
-                    onValueChange={(value) => handleSelectChange("preferredArea", value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select area" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {areas.map((area) => (
-                        <SelectItem key={area} value={area}>
-                          {area}
+                  {showCustomArea ? (
+                    <div className="flex gap-2">
+                      <Input
+                        name="customArea"
+                        placeholder="Enter your preferred area"
+                        value={formData.customArea}
+                        onChange={handleInputChange}
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => {
+                          setShowCustomArea(false);
+                          setFormData((prev) => ({ ...prev, customArea: "" }));
+                        }}
+                        className="shrink-0"
+                      >
+                        ✕
+                      </Button>
+                    </div>
+                  ) : (
+                    <Select
+                      value={formData.preferredArea}
+                      onValueChange={(value) => handleSelectChange("preferredArea", value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select area" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {areas.map((area) => (
+                          <SelectItem key={area} value={area}>
+                            {area}
+                          </SelectItem>
+                        ))}
+                        <SelectItem value="other" className="text-primary font-medium">
+                          + Other (Enter custom area)
                         </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                      </SelectContent>
+                    </Select>
+                  )}
                 </div>
               </div>
 
