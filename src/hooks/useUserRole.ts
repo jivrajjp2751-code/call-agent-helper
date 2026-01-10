@@ -16,6 +16,9 @@ export const useUserRole = (user: User | null) => {
         return;
       }
 
+      // Reset loading state when user changes
+      setIsLoading(true);
+
       try {
         const { data, error } = await supabase
           .from("profiles")
