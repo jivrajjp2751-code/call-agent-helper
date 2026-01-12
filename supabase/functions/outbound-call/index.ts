@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -12,14 +11,14 @@ serve(async (req) => {
   }
 
   try {
-    const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY");
-    const ELEVENLABS_AGENT_ID = Deno.env.get("ELEVENLABS_AGENT_ID");
-    const ELEVENLABS_AGENT_PHONE_NUMBER_ID = Deno.env.get("ELEVENLABS_AGENT_PHONE_NUMBER_ID");
+    const VAPI_API_KEY = Deno.env.get("VAPI_API_KEY");
+    const VAPI_PHONE_NUMBER_ID = Deno.env.get("VAPI_PHONE_NUMBER_ID");
+    const VAPI_ASSISTANT_ID = Deno.env.get("VAPI_ASSISTANT_ID");
 
-    if (!ELEVENLABS_API_KEY || !ELEVENLABS_AGENT_ID || !ELEVENLABS_AGENT_PHONE_NUMBER_ID) {
-      console.error("Missing ElevenLabs configuration");
+    if (!VAPI_API_KEY || !VAPI_PHONE_NUMBER_ID || !VAPI_ASSISTANT_ID) {
+      console.error("Missing VAPI configuration");
       return new Response(
-        JSON.stringify({ error: "ElevenLabs configuration is incomplete" }),
+        JSON.stringify({ error: "VAPI configuration is incomplete" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -41,7 +40,7 @@ serve(async (req) => {
     }
 
     const clientName = customerName || "Sir or Madam";
-    
+
     // Build a personalized first message
     let firstMessage = `Good day! Am I speaking with ${clientName}? This is Priya calling from Purva Real Estate. I hope I'm not disturbing you. I noticed you recently expressed interest in finding a property`;
     if (preferredArea) {
@@ -53,7 +52,7 @@ serve(async (req) => {
     firstMessage += `. I would be delighted to assist you in finding your perfect home. Do you have a few minutes to discuss your requirements?`;
 
     // Comprehensive agent prompt for formal, professional conversation
-    const agentPromptOverride = `You are Priya, a senior property consultant at Purva Real Estate, one of India's most trusted real estate companies. You are making an outbound call to a prospective client.
+    const agentPrompt = `You are Priya, a senior property consultant at Purva Real Estate, one of India's most trusted real estate companies. You are making an outbound call to a prospective client.
 
 ## YOUR IDENTITY
 - Name: Priya
@@ -117,48 +116,53 @@ Say: "I respect your decision, ${clientName}. Should your requirements change in
 
 Remember: Your goal is to build trust, understand their needs, and schedule a property visit. Always use the client's name and maintain a warm, professional demeanor throughout the conversation.`;
 
-    console.log(`Initiating outbound call to ${formattedPhone}`);
+    console.log(`Initiating VAPI outbound call to ${formattedPhone}`);
 
-    const response = await fetch(
-      "https://api.elevenlabs.io/v1/convai/twilio/outbound-call",
-      {
-        method: "POST",
-        headers: {
-          "xi-api-key": ELEVENLABS_API_KEY,
-          "Content-Type": "application/json",
+    // VAPI Outbound Call API
+    const response = await fetch("https://api.vapi.ai/call/phone", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${VAPI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        phoneNumberId: VAPI_PHONE_NUMBER_ID,
+        customer: {
+          number: formattedPhone,
+          name: clientName,
         },
-        body: JSON.stringify({
-          agent_id: ELEVENLABS_AGENT_ID,
-          agent_phone_number_id: ELEVENLABS_AGENT_PHONE_NUMBER_ID,
-          to_number: formattedPhone,
-          // Important for telephony: ensure the agent starts speaking immediately.
-          first_message: firstMessage,
-          conversation_initiation_client_data: {
-            dynamic_variables: {
-              customer_name: customerName || "Customer",
-              preferred_area: preferredArea || "any area",
-              budget: budget || "flexible",
-              company_name: "Purva Real Estate",
-            },
-            conversation_config_override: {
-              agent: {
-                prompt: {
-                  prompt: agentPromptOverride,
-                },
-                first_message: firstMessage,
-                language: "en",
+        assistantId: VAPI_ASSISTANT_ID,
+        assistantOverrides: {
+          firstMessage: firstMessage,
+          model: {
+            provider: "openai",
+            model: "gpt-4o",
+            messages: [
+              {
+                role: "system",
+                content: agentPrompt,
               },
-            },
+            ],
           },
-        }),
-      }
-    );
+          voice: {
+            provider: "11labs",
+            voiceId: "cgSgspJ2msm6clMCkdW9", // Jessica - professional female voice
+          },
+          metadata: {
+            inquiryId: inquiryId,
+            customerName: clientName,
+            preferredArea: preferredArea || "Not specified",
+            budget: budget || "Not specified",
+          },
+        },
+      }),
+    });
 
     const responseText = await response.text();
-    console.log("ElevenLabs response:", response.status, responseText);
+    console.log("VAPI response:", response.status, responseText);
 
     if (!response.ok) {
-      console.error("ElevenLabs API error:", response.status, responseText);
+      console.error("VAPI API error:", response.status, responseText);
       return new Response(
         JSON.stringify({ 
           error: "Failed to initiate call", 
@@ -180,6 +184,7 @@ Remember: Your goal is to build trust, understand their needs, and schedule a pr
       JSON.stringify({ 
         success: true, 
         message: "Call initiated successfully",
+        callId: data.id,
         data 
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
