@@ -120,7 +120,7 @@ Remember: Your goal is to build trust, understand their needs, and schedule a pr
     console.log(`Initiating outbound call to ${formattedPhone}`);
 
     const response = await fetch(
-      "https://api.elevenlabs.io/v1/convai/twilio/outbound_call",
+      "https://api.elevenlabs.io/v1/convai/twilio/outbound-call",
       {
         method: "POST",
         headers: {
@@ -131,6 +131,8 @@ Remember: Your goal is to build trust, understand their needs, and schedule a pr
           agent_id: ELEVENLABS_AGENT_ID,
           agent_phone_number_id: ELEVENLABS_AGENT_PHONE_NUMBER_ID,
           to_number: formattedPhone,
+          // Important for telephony: ensure the agent starts speaking immediately.
+          first_message: firstMessage,
           conversation_initiation_client_data: {
             dynamic_variables: {
               customer_name: customerName || "Customer",
@@ -144,6 +146,7 @@ Remember: Your goal is to build trust, understand their needs, and schedule a pr
                   prompt: agentPromptOverride,
                 },
                 first_message: firstMessage,
+                language: "en",
               },
             },
           },
